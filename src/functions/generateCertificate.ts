@@ -1,3 +1,4 @@
+import { APIGatewayProxyHandler } from 'aws-lambda';
 import chromium from 'chrome-aws-lambda';
 import handlebars from 'handlebars';
 import dayjs from 'dayjs';
@@ -29,18 +30,30 @@ const compile = async function (data: ITemplate) {
   return handlebars.compile(html)(data);
 }
 
-export const handle = async (event) => {
+export const handle: APIGatewayProxyHandler = async (event) => {
   const { id, name, grade } = JSON.parse(event.body) as ICreateCertificate;
 
-  // Salvar no DynamoDB
-  await document.put({
+  const response = await document.query({
     TableName: "users_certificates",
-    Item: {
-      id,
-      name,
-      grade
+    KeyConditionExpression: "id = :id",
+    ExpressionAttributeValues: {
+      ":id": id
     }
   }).promise();
+
+  const userAlreadyExists = response.Items[0];
+
+  if (!userAlreadyExists) {
+    // Salvar no DynamoDB
+    await document.put({
+      TableName: "users_certificates",
+      Item: {
+        id,
+        name,
+        grade
+      }
+    }).promise();
+  }
 
   const medalPath = path.join(process.cwd(), "src", "templates", "selo.png");
   const medal = fs.readFileSync(medalPath, "base64");
