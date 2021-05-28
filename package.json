@@ -10,6 +10,9 @@
   "dependencies": {
     "@middy/core": "^1.5.2",
     "@middy/http-json-body-parser": "^1.5.2",
+    "chrome-aws-lambda": "^9.1.0",
+    "dayjs": "^1.10.5",
+    "handlebars": "^4.7.7",
     "serverless-dynamodb-local": "0.2.24",
     "source-map-support": "^0.5.19"
   },
